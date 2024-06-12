@@ -22,6 +22,7 @@ export class Platform implements Iplatform {
 
   x: number;
   y: number;
+  
   img: HTMLImageElement;
 
   constructor(x: number, y: number, height: number, width: number) {

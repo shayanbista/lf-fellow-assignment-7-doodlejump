@@ -31,8 +31,8 @@ function addInitialPlatforms() {
 
   for (let i = 0; i < 11; i++) {
     let x = randInt(0, canvas.width - 60);
-    let y = i * 70;
-    const platform = new Platform(x, y, 15, 55);
+    let y = i * 90;
+    const platform = new Platform(x, y, 20, 55);
     platforms.push(platform);
   }
 }
@@ -78,23 +78,24 @@ function initialize() {
   checkBoundary(doodler);
   drawPlatforms();
   displayScore();
+
   if (gameOver(doodler)) {
     ctx.fillStyle = "game over press space to restart";
     ctx.fillText("Game Over :press space to restart", 10, height * (7 / 8));
     over = true;
   }
 
-  window.addEventListener("keydown", reset);
-
   window.requestAnimationFrame(initialize);
 }
 
+function startGame(): void {
+  initialize();
+}
+
 function updateScore() {
-  let points = randInt(5, 20);
+  let points = 10;
   if (velocity.y < 0) {
     score += points;
-  } else {
-    score = points;
   }
 }
 
@@ -109,27 +110,32 @@ function reset(event: KeyboardEvent) {
     doodler = new Player();
     velocity.x = 0;
     velocity.y = -8;
-
     platforms.length = 0;
-    addInitialPlatforms();
 
-    score = 0;
+    score = -40;
     over = false;
+    console.log("score", score);
+    displayScore();
 
-    ctx.clearRect(0, 0, width, height);
+    addInitialPlatforms();
   }
 }
 
 window.onload = function () {
   doodler = new Player();
   if (ctx) {
-    window.requestAnimationFrame(initialize);
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    ctx.font = "15px Arial";
+    ctx.fillText("press any key to start the game", 100, 150);
+
     console.log(doodler);
 
     addInitialPlatforms();
     velocity.y = initialVelocityY;
-    console.log(velocity.y);
+    window.addEventListener("keydown", reset);
 
     doodler.eventListener();
   }
 };
+
+window.addEventListener("keydown", startGame);
