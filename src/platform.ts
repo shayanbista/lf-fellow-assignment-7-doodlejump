@@ -1,4 +1,12 @@
-import { ctx } from "./main";
+import { height, width } from "./constant";
+import { randInt } from "./utility";
+
+export function newPlatform() {
+  let x = Math.floor(randInt(0, width - 50));
+  let y = -height;
+  const platform = new Platform(x, y, 15, 55);
+  return platform;
+}
 
 interface Iplatform {
   x: number;
@@ -25,7 +33,7 @@ export class Platform implements Iplatform {
     this.img.src = "./public/asset/images/platform.png";
   }
 
-  drawImage(): void {
+  drawImage(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 }
