@@ -14,11 +14,10 @@ interface Iplatform {
   height: number;
   width: number;
   img: HTMLImageElement;
+  moveTile: boolean;
 }
 
 export class Platform implements Iplatform {
-
-  
   height: number;
   width: number;
 
@@ -34,9 +33,17 @@ export class Platform implements Iplatform {
     this.y = y;
     this.img = new Image();
     this.img.src = "./public/asset/images/platform.png";
+    this.moveTile = false;
   }
+  moveTile: boolean;
 
   drawImage(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+  }
+
+  moveX() {
+    if (this.moveTile == true) {
+      console.log("true");
+    }
   }
 }

@@ -1,7 +1,8 @@
 import { width, height } from "./constant";
 import { velocity } from "./utility";
 
-const doodlerImagePath = "./public/asset/images/doodler-right.png";
+const doodlerrightPath = "./public/asset/images/doodler-right.png";
+
 const backgroundImagePath = "./public/asset/images/doodlebg.png";
 
 interface IPlayer {
@@ -27,12 +28,13 @@ export class Player implements IPlayer {
     this.x = width / 2 - 35 / 2;
     this.y = height - 50;
     this.img = new Image();
-    this.img.src = doodlerImagePath;
+    this.img.src = doodlerrightPath;
     this.velocity = velocity;
     this.canMove = true;
   }
 
   drawImage(ctx: CanvasRenderingContext2D): void {
+    console.log("img", this.img);
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 
@@ -41,7 +43,7 @@ export class Player implements IPlayer {
   }
 
   moveLeft(): void {
-    this.velocity.x = -3;
+    this.velocity.x = -4;
   }
 
   stopMove(): void {

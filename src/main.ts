@@ -1,32 +1,26 @@
 import { width, height } from "./constant";
-import {
-  gravity,
-  initialVelocityY,
-  velocity,
-  gameOver,
-  drawStartScreen,
-} from "./utility";
+import { gravity, initialVelocityY, velocity } from "./utility";
 
 import { Player } from "./doodleCharacter";
 import { background } from "./doodleCharacter";
 import { Platform } from "./platform";
 import { randInt, checkBoundary } from "./utility";
+export let over = false;
 
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-canvas.width = width;
-canvas.height = height;
-canvas.style.background = "black";
-
-const platforms: Platform[] = [];
+let animationId: number;
+let isPaused = false;
+let platforms: Platform[] = [];
 let doodler: Player;
 let score = 0;
 let highscore = localStorage.getItem("highscore")
   ? parseInt(localStorage.getItem("highscore")!)
   : 0;
 
-let animationId: number;
-export let over = false;
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+canvas.width = width;
+canvas.height = height;
+canvas.style.background = "black";
 
 function addInitialPlatforms(): void {
   const firstPlatformX = (canvas.width - 60) / 2;
@@ -85,17 +79,6 @@ function drawPlatforms(): void {
 }
 
 function update(): void {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-  doodler.drawImage(ctx);
-  doodler.x += velocity.x;
-  doodler.y += velocity.y;
-  velocity.y += gravity;
-  checkBoundary(doodler);
-  drawPlatforms();
-
-  displayScore();
-
   if (gameOver(doodler)) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -113,6 +96,20 @@ function update(): void {
     cancelAnimationFrame(animationId);
     return;
   }
+
+  if (isPaused) {
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+  doodler.drawImage(ctx);
+  doodler.x += velocity.x;
+  doodler.y += velocity.y;
+  velocity.y += gravity;
+  checkBoundary(doodler);
+  drawPlatforms();
+  displayScore();
 
   animationId = window.requestAnimationFrame(update);
 }
@@ -149,20 +146,65 @@ function reset(event: KeyboardEvent) {
   }
 }
 
+function gameOver(doodler: Player) {
+  return doodler.y > height ? true : false;
+}
+
+function drawStartScreen() {
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(background, 0, 0, width, height);
+  ctx.fillStyle = "red";
+  ctx.font = "48px 'Comic Neue', sans-serif";
+  ctx.fillText("doodle jump", width / 2 - 120, 100);
+
+  ctx.fillStyle = "black";
+  ctx.font = "36px 'Comic Neue', sans-serif";
+  ctx.fillText("play", width / 2 - 30, 250);
+  ctx.fillStyle = "green";
+  ctx.font = "36px 'Comic Neue', sans-serif";
+  ctx.fillText("press space to start", width / 2 - 140, 350);
+
+  ctx.fillText("note: p - pause", width - 300, 450);
+  ctx.fillText("note: r - resume", width - 300, 550);
+
+  ctx.beginPath();
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.roundRect(width / 2 - 60, 210, 120, 50, 10);
+  ctx.stroke();
+}
+
+function PauseGame(event: KeyboardEvent): void {
+  if (event.key == "p") {
+    isPaused = true;
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("paused", 10, height * (3 / 8));
+    ctx.fillText("press r to resume", 10, height * (4 / 8));
+    cancelAnimationFrame(animationId);
+  }
+  if (event.key == "r") {
+    console.log("r is called");
+    isPaused = false;
+    animationId = window.requestAnimationFrame(update);
+  }
+}
+
+// function that initiizes game
+function startKey() {
+  window.removeEventListener("keydown", startKey);
+  startGame();
+  window.addEventListener("keydown", reset);
+}
+
 window.onload = function () {
   doodler = new Player();
   if (ctx) {
-    drawStartScreen(ctx);
+    drawStartScreen();
     addInitialPlatforms();
     velocity.y = initialVelocityY;
-
-    function startOnFirstKey() {
-      window.removeEventListener("keydown", startOnFirstKey);
-      startGame();
-      window.addEventListener("keydown", reset);
-    }
-
-    window.addEventListener("keydown", startOnFirstKey);
+    window.addEventListener("keydown", startKey);
+    window.addEventListener("keydown", PauseGame);
     doodler.eventListener();
   }
 };
