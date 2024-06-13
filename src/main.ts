@@ -24,8 +24,8 @@ let score = 0;
 let highscore = localStorage.getItem("highscore")
   ? parseInt(localStorage.getItem("highscore")!)
   : 0;
+
 let animationId: number;
-let isPaused = false;
 export let over = false;
 
 function addInitialPlatforms(): void {
@@ -152,11 +152,11 @@ function reset(event: KeyboardEvent) {
 window.onload = function () {
   doodler = new Player();
   if (ctx) {
-    drawStartScreen(ctx); 
+    drawStartScreen(ctx);
     addInitialPlatforms();
     velocity.y = initialVelocityY;
 
-    function startOnFirstKey(event: KeyboardEvent) {
+    function startOnFirstKey() {
       window.removeEventListener("keydown", startOnFirstKey);
       startGame();
       window.addEventListener("keydown", reset);

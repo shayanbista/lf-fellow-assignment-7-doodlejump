@@ -58,7 +58,7 @@ export function drawStartScreen(ctx: CanvasRenderingContext2D) {
   ctx.fillText("play", width / 2 - 30, 250);
   ctx.fillStyle = "green";
   ctx.font = "36px 'Comic Neue', sans-serif";
-  ctx.fillText("press Enter to start", width / 2 - 140, 350);
+  ctx.fillText("press space to start", width / 2 - 140, 350);
 
   ctx.beginPath();
   ctx.strokeStyle = "black";
