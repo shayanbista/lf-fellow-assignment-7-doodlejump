@@ -1,10 +1,10 @@
 import { width, height } from "./constant";
 import {
-  detectCollision,
   gravity,
   initialVelocityY,
   velocity,
   gameOver,
+  drawStartScreen,
 } from "./utility";
 
 import { Player } from "./doodleCharacter";
@@ -21,9 +21,14 @@ canvas.style.background = "black";
 const platforms: Platform[] = [];
 let doodler: Player;
 let score = 0;
+let highscore = localStorage.getItem("highscore")
+  ? parseInt(localStorage.getItem("highscore")!)
+  : 0;
+let animationId: number;
+let isPaused = false;
 export let over = false;
 
-function addInitialPlatforms() {
+function addInitialPlatforms(): void {
   const firstPlatformX = (canvas.width - 60) / 2;
   const firstPlatformY = height - 20;
   const firstPlatform = new Platform(firstPlatformX, firstPlatformY, 15, 65);
@@ -32,7 +37,7 @@ function addInitialPlatforms() {
   for (let i = 0; i < 11; i++) {
     let x = randInt(0, canvas.width - 60);
     let y = i * 90;
-    const platform = new Platform(x, y, 20, 55);
+    const platform = new Platform(x, y, 20, 70);
     platforms.push(platform);
   }
 }
@@ -43,20 +48,32 @@ function addNewPlatform(): void {
     platforms.length > 0 ? Math.min(...platforms.map((p) => p.y)) - 70 : -25;
   let minSpacing = 70;
   newYPos = newYPos - minSpacing;
-  let platform = new Platform(randomX, newYPos, 15, 55);
+  let platform = new Platform(randomX, newYPos, 15, 70);
 
   platforms.push(platform);
 }
 
 function drawPlatforms(): void {
   platforms.forEach((platform: Platform, index) => {
-    if (detectCollision(doodler, platform) && velocity.y >= 0) {
+    let isMovingDownward = velocity.y >= 0;
+    let doodlerBottom = doodler.y + doodler.height;
+    let doodlerLeft = doodler.x;
+    let doodlerRight = doodler.x + doodler.width;
+
+    const isWithinPlatform =
+      doodlerRight > platform.x && doodlerLeft < platform.x + platform.width;
+
+    const isTouchingTop =
+      doodlerBottom >= platform.y && doodlerBottom <= platform.y + 10;
+
+    if (isWithinPlatform && isTouchingTop && isMovingDownward) {
       velocity.y = initialVelocityY;
     }
 
     if (velocity.y < 0 && doodler.y < (height * 3) / 4) {
       platform.y -= initialVelocityY;
     }
+
     platform.drawImage(ctx);
 
     if (platform.y > height) {
@@ -67,32 +84,46 @@ function drawPlatforms(): void {
   });
 }
 
-function initialize() {
+function update(): void {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
   doodler.drawImage(ctx);
   doodler.x += velocity.x;
   doodler.y += velocity.y;
   velocity.y += gravity;
   checkBoundary(doodler);
   drawPlatforms();
+
   displayScore();
 
   if (gameOver(doodler)) {
-    ctx.fillStyle = "game over press space to restart";
-    ctx.fillText("Game Over :press space to restart", 10, height * (7 / 8));
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (score > highscore) {
+      highscore = score;
+      localStorage.setItem("highscore", highscore.toString());
+    }
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText("Game Over : Press Space to Restart", 10, height * (4 / 8));
+    ctx.fillText(`Your score is ${score}`, 100, height * (5 / 8));
+    ctx.fillText(`Your highest score is ${highscore}`, 80, height * (6 / 8));
+
     over = true;
+    cancelAnimationFrame(animationId);
+    return;
   }
 
-  window.requestAnimationFrame(initialize);
+  animationId = window.requestAnimationFrame(update);
 }
 
 function startGame(): void {
-  initialize();
+  if (!over) {
+    animationId = window.requestAnimationFrame(update);
+  }
 }
 
-function updateScore() {
+function updateScore(): void {
   let points = 10;
   if (velocity.y < 0) {
     score += points;
@@ -111,31 +142,27 @@ function reset(event: KeyboardEvent) {
     velocity.x = 0;
     velocity.y = -8;
     platforms.length = 0;
-
     score = -40;
     over = false;
-    console.log("score", score);
-    displayScore();
-
     addInitialPlatforms();
+    startGame();
   }
 }
 
 window.onload = function () {
   doodler = new Player();
   if (ctx) {
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    ctx.font = "15px Arial";
-    ctx.fillText("press any key to start the game", 100, 150);
-
-    console.log(doodler);
-
+    drawStartScreen(ctx); 
     addInitialPlatforms();
     velocity.y = initialVelocityY;
-    window.addEventListener("keydown", reset);
 
+    function startOnFirstKey(event: KeyboardEvent) {
+      window.removeEventListener("keydown", startOnFirstKey);
+      startGame();
+      window.addEventListener("keydown", reset);
+    }
+
+    window.addEventListener("keydown", startOnFirstKey);
     doodler.eventListener();
   }
 };
-
-window.addEventListener("keydown", startGame);

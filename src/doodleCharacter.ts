@@ -19,6 +19,7 @@ export class Player implements IPlayer {
   y: number;
   img: HTMLImageElement;
   velocity: any;
+  canMove: boolean;
 
   constructor() {
     this.height = 36;
@@ -28,6 +29,7 @@ export class Player implements IPlayer {
     this.img = new Image();
     this.img.src = doodlerImagePath;
     this.velocity = velocity;
+    this.canMove = true;
   }
 
   drawImage(ctx: CanvasRenderingContext2D): void {
@@ -55,12 +57,17 @@ export class Player implements IPlayer {
   }
 
   moveDoodler(event: KeyboardEvent): void {
-    if (event.code == "ArrowRight") {
+    if (event.code === "ArrowRight") {
       this.moveRight();
-    } else if (event.code == "ArrowLeft") {
+    } else if (event.code === "ArrowLeft") {
       this.moveLeft();
-    } else {
-      this.stopMove();
+    } else if (event.code === "ArrowUp" && this.canMove) {
+      this.velocity.y += -3;
+      this.canMove = false;
+
+      setTimeout(() => {
+        this.canMove = true;
+      }, 1000);
     }
   }
 }

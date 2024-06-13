@@ -1,6 +1,6 @@
 import { Platform } from "./platform";
 import { width, height } from "./constant";
-import { Player } from "./doodleCharacter";
+import { Player, background } from "./doodleCharacter";
 
 // variable part
 export let initialVelocityY: number = -8;
@@ -10,7 +10,6 @@ export let velocity = {
   x: 0,
   y: 0,
 };
-
 
 // functions part
 export function randInt(min: number, max: number) {
@@ -45,4 +44,25 @@ export function checkBoundary(doodler: {
 
 export function gameOver(doodler: Player) {
   return doodler.y > height ? true : false;
+}
+
+export function drawStartScreen(ctx: CanvasRenderingContext2D) {
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(background, 0, 0, width, height);
+  ctx.fillStyle = "red";
+  ctx.font = "48px 'Comic Neue', sans-serif";
+  ctx.fillText("doodle jump", width / 2 - 120, 100);
+
+  ctx.fillStyle = "black";
+  ctx.font = "36px 'Comic Neue', sans-serif";
+  ctx.fillText("play", width / 2 - 30, 250);
+  ctx.fillStyle = "green";
+  ctx.font = "36px 'Comic Neue', sans-serif";
+  ctx.fillText("press Enter to start", width / 2 - 140, 350);
+
+  ctx.beginPath();
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.roundRect(width / 2 - 60, 210, 120, 50, 10);
+  ctx.stroke();
 }
