@@ -32,7 +32,7 @@ export class Platform implements Iplatform {
     this.x = x;
     this.y = y;
     this.img = new Image();
-    this.img.src = "./public/asset/images/platform.png";
+    this.img.src = "./asset/images/platform.png";
     this.moveTile = false;
   }
   moveTile: boolean;

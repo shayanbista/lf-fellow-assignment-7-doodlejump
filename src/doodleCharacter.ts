@@ -1,9 +1,9 @@
 import { width, height } from "./constant";
 import { velocity } from "./utility";
 
-const doodlerrightPath = "./public/asset/images/doodler-right.png";
+const doodlerrightPath = "./asset/images/doodler-right.png";
 
-const backgroundImagePath = "./public/asset/images/doodlebg.png";
+const backgroundImagePath = "./asset/images/doodlebg.png";
 
 interface IPlayer {
   x: number;
