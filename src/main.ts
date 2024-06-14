@@ -11,7 +11,7 @@ let animationId: number;
 let isPaused = false;
 let platforms: Platform[] = [];
 let doodler: Player;
-let score = 0;
+let score = -40;
 let highscore = localStorage.getItem("highscore")
   ? parseInt(localStorage.getItem("highscore")!)
   : 0;
